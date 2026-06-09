@@ -5,7 +5,7 @@
 | 条件 | 要求 |
 |------|------|
 | 操作系统 | Windows |
-| IDE 版本 | IntelliJ IDEA 2024.3.3+ 或其他 JetBrains IDE |
+| IDE 版本 | IntelliJ IDEA 2022.3+ 或其他 JetBrains IDE |
 | JDK | 17 或 21（运行时由 IDE 提供） |
 
 ## 安装方式
@@ -84,8 +84,8 @@ mvn package
 
 ### 安装时提示版本不兼容
 
-- 确保 IDE 版本为 2024.3.3 或更高
-- 检查 IDE 构建号是否在支持范围内（`sinceBuild=243.3`，`untilBuild=253.*`）
+- 确保 IDE 版本为 2022.3 或更高
+- 检查 IDE 构建号是否在支持范围内（`sinceBuild=223.*`，`untilBuild=253.*`）
 
 ### 本地构建失败
 
