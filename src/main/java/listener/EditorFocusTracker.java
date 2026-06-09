@@ -18,12 +18,21 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+/**
+ * 编辑器焦点追踪器。
+ *
+ * <p>监听编辑器焦点变化，当焦点进入或离开编辑器时通知调用方。
+ * 支持不同版本的 IntelliJ Platform，包括旧版本的兼容性回退。
+ */
 public class EditorFocusTracker {
     
-    // 用于存储每个项目的监听器连接，避免重复注册
     private static final Map<Project, MessageBusConnection> projectConnections = new ConcurrentHashMap<>();
     
-    // 静态工具方法：检查当前焦点是否在编辑器内
+    /**
+     * 检查当前焦点是否在编辑器内（兼容旧版本）。
+     *
+     * <p>如果 EditorEx 或 UIUtil 不可用，提供回退方案。
+     */
     public static boolean isFocusInsideEditor(Project project) {
         if (project == null || project.isDisposed()) {
             return false;
@@ -35,17 +44,39 @@ public class EditorFocusTracker {
         Editor currentEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
         if (currentEditor == null) return false;
         
-        JComponent editorComponent = ((EditorEx) currentEditor).getContentComponent();
-        return UIUtil.isDescendingFrom(focusOwner, editorComponent);
+        try {
+            // 尝试使用 EditorEx 和 UIUtil（新版本）
+            JComponent editorComponent = ((EditorEx) currentEditor).getContentComponent();
+            return UIUtil.isDescendingFrom(focusOwner, editorComponent);
+        } catch (Exception e) {
+            // 回退到简单的组件层次检查（旧版本）
+            return isComponentDescendant(focusOwner, currentEditor.getContentComponent());
+        }
     }
 
-    // 注册焦点变化监听器 - 改进版本
+    /**
+     * 简单的组件层次检查（不依赖 UIUtil）。
+     */
+    private static boolean isComponentDescendant(Component child, Component parent) {
+        if (child == null || parent == null) {
+            return false;
+        }
+
+        Component current = child;
+        while (current != null) {
+            if (current.equals(parent)) {
+                return true;
+            }
+            current = current.getParent();
+        }
+        return false;
+    }
+
     public static void addFocusListener(Project project, Consumer<Boolean> onFocusChanged) {
         if (project == null || project.isDisposed()) {
             return;
         }
         
-        // 避免重复注册
         if (projectConnections.containsKey(project)) {
             return;
         }
@@ -53,26 +84,21 @@ public class EditorFocusTracker {
         MessageBusConnection connection = project.getMessageBus().connect();
         projectConnections.put(project, connection);
         
-        // 监听编辑器切换事件
         connection.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, new FileEditorManagerListener() {
             @Override
             public void selectionChanged(FileEditorManagerEvent event) {
-                // 当编辑器切换时，重新为新编辑器添加焦点监听
                 addFocusListenerToCurrentEditor(project, onFocusChanged);
             }
         });
         
-        // 为当前编辑器添加焦点监听
         addFocusListenerToCurrentEditor(project, onFocusChanged);
         
-        // 当项目关闭时清理连接
         Disposer.register(project, () -> {
             connection.disconnect();
             projectConnections.remove(project);
         });
     }
     
-    // 为当前编辑器添加焦点监听器
     private static void addFocusListenerToCurrentEditor(Project project, Consumer<Boolean> onFocusChanged) {
         if (project.isDisposed()) return;
         
@@ -80,7 +106,6 @@ public class EditorFocusTracker {
         if (editor instanceof EditorEx) {
             JComponent contentComponent = ((EditorEx) editor).getContentComponent();
             
-            // 移除之前的监听器（如果有的话）
             FocusListener[] existingListeners = contentComponent.getFocusListeners();
             for (FocusListener listener : existingListeners) {
                 if (listener instanceof EditorFocusListener) {
@@ -88,12 +113,10 @@ public class EditorFocusTracker {
                 }
             }
             
-            // 添加新的焦点监听器
             contentComponent.addFocusListener(new EditorFocusListener(onFocusChanged));
         }
     }
     
-    // 自定义焦点监听器类，便于识别和管理
     private static class EditorFocusListener extends FocusAdapter {
         private final Consumer<Boolean> onFocusChanged;
         
@@ -114,7 +137,6 @@ public class EditorFocusTracker {
         }
     }
     
-    // 清理指定项目的监听器
     public static void removeFocusListener(Project project) {
         MessageBusConnection connection = projectConnections.remove(project);
         if (connection != null) {

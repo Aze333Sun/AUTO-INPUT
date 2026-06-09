@@ -43,6 +43,7 @@
   <p>目前正在准备秋招项目，等秋招结束后，将进行重构并支持更丰富的功能。</p>
 </description>
     ]]></description>
+    <!-- 兼容性: 支持 IntelliJ 2022.3+ (build 223+) 和 IdeaVim 1.x/2.x -->
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
 
