@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>cn.mumukehao</groupId>
+    <artifactId>plugin</artifactId>
+    <version>1.0.3</version>
+    <packaging>jar</packaging>
+
+    <name>AUTO-INPUT-CH-EN</name>
+    <description>Automatically switch between Chinese and English input methods based on cursor position</description>
+    <url>https://github.com/lin-uice/AUTO-INPUT-CH-EN</url>
+
+    <licenses>
+        <license>
+            <name>GPL-3.0</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.html</url>
+        </license>
+    </licenses>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.source>17</java.source>
+        <java.target>21</java.target>
+        <intellij.platform.version>2024.3.3</intellij.platform.version>
+        <intellij.platform.type>IC</intellij.platform.type>
+        <idea.vim.version>2.22.0</idea.vim.version>
+        <jna.version>5.17.0</jna.version>
+        <maven.compiler.source>${java.source}</maven.compiler.source>
+        <maven.compiler.target>${java.target}</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <!-- IntelliJ Platform SDK -->
+        <dependency>
+            <groupId>com.jetbrains.intellij.platform</groupId>
+            <artifactId>ide-IC</artifactId>
+            <version>${intellij.platform.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- IntelliJ Platform core modules -->
+        <dependency>
+            <groupId>com.jetbrains.intellij.platform</groupId>
+            <artifactId>core</artifactId>
+            <version>${intellij.platform.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jetbrains.intellij.platform</groupId>
+            <artifactId>lang</artifactId>
+            <version>${intellij.platform.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jetbrains.intellij.platform</groupId>
+            <artifactId>extensions</artifactId>
+            <version>${intellij.platform.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jetbrains.intellij.platform</groupId>
+            <artifactId>util-ui</artifactId>
+            <version>${intellij.platform.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jetbrains.intellij.platform</groupId>
+            <artifactId>editor-ui-ex</artifactId>
+            <version>${intellij.platform.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- IdeaVIM (optional) -->
+        <dependency>
+            <groupId>com.maddyhome.idea.vim</groupId>
+            <artifactId>ideavim</artifactId>
+            <version>${idea.vim.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- JNA for Windows API calls -->
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>${jna.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+            <version>${jna.version}</version>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>jetbrains</id>
+            <name>JetBrains Repository</name>
+            <url>https://packages.jetbrains.team/maven/p/ij/intellij-dependencies</url>
+        </repository>
+    </repositories>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>META-INF/**</include>
+                </includes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>${java.source}</source>
+                    <target>${java.target}</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.jetbrains.intellij.platform</groupId>
+                <artifactId>maven-intellij-platform-plugin</artifactId>
+                <version>2.2.1</version>
+                <configuration>
+                    <type>${intellij.platform.type}</type>
+                    <version>${intellij.platform.version}</version>
+                    <pluginDescriptor>
+                        <file>src/main/resources/META-INF/plugin.xml</file>
+                    </pluginDescriptor>
+                    <sandboxDirectory>${project.build.directory}/idea-sandbox</sandboxDirectory>
+                    <ideaVersion>
+                        <sinceBuild>243.3</sinceBuild>
+                        <untilBuild>253.*</untilBuild>
+                    </ideaVersion>
+                    <changeNotes>
+                        <![CDATA[
+                            <h2>Version 1.0.3</h2>
+                            <ul>
+                                <li>⚡ 优化代码逻辑，提升插件响应速度</li>
+                                <li>🔄 重构源码，精简插件大小</li>
+                            </ul>
+                        ]]>
+                    </changeNotes>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>net.java.dev.jna</groupId>
+                        <artifactId>jna</artifactId>
+                        <version>${jna.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>net.java.dev.jna</groupId>
+                        <artifactId>jna-platform</artifactId>
+                        <version>${jna.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
