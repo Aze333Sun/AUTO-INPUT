@@ -20,8 +20,13 @@
 
 ### 版本要求
 
-- **最低版本：** IntelliJ Platform 2024.3.3+
-- **构建号范围：** `sinceBuild=243.3`，`untilBuild=253.*`
+- **最低版本：** IntelliJ Platform 2022.3+
+- **构建号范围：** `sinceBuild=223.*`，`untilBuild=253.*`
+
+### IdeaVim 兼容性
+
+- IdeaVim 支持版本：2022.3+（与 IDE 版本一致）
+- IdeaVim 为可选依赖，运行时通过 `Class.forName()` 检测
 
 ### 兼容性说明
 
